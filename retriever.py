@@ -1,5 +1,3 @@
-#TODO retrieve images through http get request method
-#TODO storage images in subfolders
 #TODO storage local references to the images in the database
 #TODO decentralize the main function
 
@@ -9,10 +7,11 @@ import sqlite3
 import os.path
 from sqlite3 import Error
 from databaseCreator import create_connection, getDatabasePath
+import urllib.request
 
 def retrievePokemons():
     #Retrive a JSON to 10 pokemons
-    r = requests.get('https://pokeapi.co/api/v2/pokemon?limit=10')
+    r = requests.get('https://pokeapi.co/api/v2/pokemon?limit=100')
     PreviewPokemons=r.json().get('results')
     Pokemons=list()
     #Get the complete Json for every Pokemon previously retrieved
@@ -42,17 +41,18 @@ def printPokemonDataFromJSON(Pokemon):
     print("Health " + str(Pokemon.get('stats')[0].get('base_stat')))
     print("-----------------------------------------------------------")
 
+def downloadImages(Pokemon):
+    img_url=(Pokemon.get('sprites').get('front_default'))
+    save_name=".\Images\_front_default_" + Pokemon.get('name') +".jpg"
+    urllib.request.urlretrieve(img_url,save_name)
+
 def main():
     Pokemons=retrievePokemons()
     conn=create_connection(getDatabasePath())
     for x in Pokemons:
         #insertPokemon(conn,x)
-        printPokemonDataFromJSON(x)
-
-    
-
-    
-
+        #printPokemonDataFromJSON(x)
+        downloadImages(x)
 
 if __name__ == "__main__":
     main()
